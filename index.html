@@ -197,7 +197,8 @@
         h2 {
             margin-top: 2rem;
         }
-        #status{
+
+        #status {
             margin: .5rem 0 1rem;
             color: var(--nord13);
             font-size: 1.3rem;
@@ -222,7 +223,6 @@
                 <table>
                     <thead>
                         <tr>
-                            <td>姓名</td>
                             <td>時間</td>
                             <td>剩下課堂</td>
                         </tr>
@@ -231,67 +231,12 @@
                         <tr>
                             <td>小明</td>
                             <td>2021/10/10</td>
-                            <td></td>
+                            <td>10</td>
                         </tr>
                         <tr>
                             <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td></td>
+                            <td>2021/11/10</td>
+                            <td>9</td>
                         </tr>
                     </tbody>
                 </table>
@@ -346,16 +291,17 @@
 
             })
             .catch(error => console.error(error));
-            const status = document.getElementById('status');
+        const status = document.getElementById('status');
+        //https://script.google.com/macros/s/AKfycbzxqGIMBbLkCka2aveltdVHYtdG-k_X98qzSd_V9MHDxWaOYXFwZgE3rRHDzCakzTxs/exec?type=search&name=zzz
         function rollCall(name, left, index) {
-            status.innerHTML=`${name} 點名中...`;
-            fetch(`https://script.google.com/macros/s/AKfycbzxqGIMBbLkCka2aveltdVHYtdG-k_X98qzSd_V9MHDxWaOYXFwZgE3rRHDzCakzTxs/exec?type=call&name=${name}&time=${new Date()}`)
+            status.innerHTML = `${name} 點名中...`;
+            fetch(`https://script.google.com/macros/s/AKfycbzxqGIMBbLkCka2aveltdVHYtdG-k_X98qzSd_V9MHDxWaOYXFwZgE3rRHDzCakzTxs/exec?type=call&name=${name}&time=${new Date()}&remain=${left}`)
                 .then(response => {
                     if (response.ok) {
-                        status.innerHTML=`${name} 已點名成功！剩餘課堂：${left - 1}`;
+                        status.innerHTML = `${name} 已點名成功！剩餘課堂：${left - 1}`;
                         document.getElementById('student-' + index).style.backgroundColor = 'var(--nord14)';
                     } else {
-                        status.innerHTML=`${name} 已點名失敗！剩餘課堂：${left}`;
+                        status.innerHTML = `${name} 已點名失敗！剩餘課堂：${left}`;
                         document.getElementById('student-' + index).style.backgroundColor = 'var(--nord11)';
                     }
                 })
@@ -364,6 +310,38 @@
                 });
         }
 
+        const searchBtn = document.querySelector('#history button');
+        const searchInput = document.querySelector('#history input');
+        const historyTableBody = document.querySelector('#history tbody');
+
+        searchBtn.addEventListener('click', () => {
+            status.innerHTML = "搜尋中..."
+            const name = searchInput.value;
+            const url = `https://script.google.com/macros/s/AKfycbzxqGIMBbLkCka2aveltdVHYtdG-k_X98qzSd_V9MHDxWaOYXFwZgE3rRHDzCakzTxs/exec?type=search&name=${encodeURIComponent(name)}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector("#history table tbody");
+                    tableBody.innerHTML = "";
+
+                    data.forEach((row) => {
+                        const tr = document.createElement("tr");
+                        const timeTd = document.createElement("td");
+                        const leftTd = document.createElement("td");
+
+
+
+                        timeTd.textContent = new Date(row.time).toLocaleString().replace(",", "");
+                        leftTd.textContent = row.left;
+
+                        tr.appendChild(timeTd);
+                        tr.appendChild(leftTd);
+                        tableBody.appendChild(tr);
+                        status.innerHTML = "搜尋完成";
+                    });
+                })
+                .catch(error => console.error(error));
+        });
 
 
     </script>
