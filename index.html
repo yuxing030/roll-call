@@ -196,6 +196,9 @@
 
         h2 {
             margin-top: 2rem;
+            text-align: center;
+            width: 100%;
+            font-weight: 600;
         }
 
         #status {
@@ -228,16 +231,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/10/10</td>
-                            <td>10</td>
-                        </tr>
-                        <tr>
-                            <td>小明</td>
-                            <td>2021/11/10</td>
-                            <td>9</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -246,7 +239,6 @@
             </div>
             <div id="add">
                 <div class="search"><input type="text"><button>新增</button></div>
-                <h2>新增成功</h2>
             </div>
         </section>
         <footer><a href="edit-mr.github.io/">毛哥EM</a>製作</footer>
@@ -282,7 +274,7 @@
                 data.forEach((item, index) => {
                     const button = document.createElement('button');
                     button.textContent = item.name;
-                    button.id = `student-${index + 1}`; // add ID based on index
+                    button.id = `student-${index + 1}`;
                     button.addEventListener('click', () => {
                         rollCall(item.name, item.left, index + 1);
                     });
@@ -295,7 +287,9 @@
         //https://script.google.com/macros/s/AKfycbzxqGIMBbLkCka2aveltdVHYtdG-k_X98qzSd_V9MHDxWaOYXFwZgE3rRHDzCakzTxs/exec?type=search&name=zzz
         function rollCall(name, left, index) {
             status.innerHTML = `${name} 點名中...`;
-            fetch(`https://script.google.com/macros/s/AKfycbzxqGIMBbLkCka2aveltdVHYtdG-k_X98qzSd_V9MHDxWaOYXFwZgE3rRHDzCakzTxs/exec?type=call&name=${name}&time=${new Date()}&remain=${left}`)
+            var date = new Date();
+            var date = date.toLocaleString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit", hour: "numeric", minute: "numeric", second: "numeric", hour12: true }).replace("-", "/").replace(" ", " ");
+            fetch(`https://script.google.com/macros/s/AKfycbzxqGIMBbLkCka2aveltdVHYtdG-k_X98qzSd_V9MHDxWaOYXFwZgE3rRHDzCakzTxs/exec?type=call&name=${name}&time=${date}&remain=${left}`)
                 .then(response => {
                     if (response.ok) {
                         status.innerHTML = `${name} 已點名成功！剩餘課堂：${left - 1}`;
@@ -306,10 +300,9 @@
                     }
                 })
                 .catch(error => {
-                    alert(`發生錯誤：${error}`);
+                    status.innerHTML = `發生錯誤：${error}`;
                 });
         }
-
         const searchBtn = document.querySelector('#history button');
         const searchInput = document.querySelector('#history input');
         const historyTableBody = document.querySelector('#history tbody');
@@ -323,26 +316,34 @@
                 .then(data => {
                     const tableBody = document.querySelector("#history table tbody");
                     tableBody.innerHTML = "";
-
                     data.forEach((row) => {
                         const tr = document.createElement("tr");
                         const timeTd = document.createElement("td");
                         const leftTd = document.createElement("td");
-
-
-
-                        timeTd.textContent = new Date(row.time).toLocaleString().replace(",", "");
+                        var date = new Date(row.time);
+                        timeTd.textContent = date.toLocaleString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit", hour: "numeric", minute: "numeric", second: "numeric", hour12: true }).replace("-", "/").replace(" ", " ");
                         leftTd.textContent = row.left;
-
                         tr.appendChild(timeTd);
                         tr.appendChild(leftTd);
                         tableBody.appendChild(tr);
                         status.innerHTML = "搜尋完成";
                     });
                 })
-                .catch(error => console.error(error));
+                .catch(error => status.innerHTML = error);
         });
+        const addBtn = document.querySelector('#add button');
+        const addInput = document.querySelector('#add input');
 
+        addBtn.addEventListener('click', () => {
+            const name = addInput.value;
+            if (!name) return;
+            status.innerHTML = "新增中..."
+            fetch(`https://script.google.com/macros/s/AKfycbzxqGIMBbLkCka2aveltdVHYtdG-k_X98qzSd_V9MHDxWaOYXFwZgE3rRHDzCakzTxs/exec?type=new&name=${encodeURIComponent(name)}`)
+                .then(response => status.innerHTML = "新增成功")
+                .catch(error => {
+                    status.innerHTML = error;
+                });
+        });
 
     </script>
 
